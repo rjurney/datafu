@@ -26,7 +26,7 @@ public class ToJsonTests extends PigTests
     /**
      register $JAR_PATH
 
-     define ToJson datafu.pig.text.ToJson();
+     define ToJson datafu.pig.util.ToJson();
 
      data = LOAD 'input' AS (B: bag {T: tuple(v:INT)});
 

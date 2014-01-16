@@ -1,11 +1,10 @@
-package datafu.pig.text;
+package datafu.pig.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pig.ResourceSchema;
 import org.apache.pig.data.DataBag;
 import org.apache.pig.data.DataType;
-import org.apache.pig.impl.logicalLayer.schema.Schema.FieldSchema;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.EvalFunc;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
@@ -56,6 +55,7 @@ public class ToJson extends EvalFunc<String> {
         return baos.toString();
     }
 
+    // Pulled from https://issues.apache.org/jira/browse/PIG-2641
     public static class JsonSerializer {
         @SuppressWarnings("unchecked")
         public static void writeField(JsonGenerator json,
