@@ -29,12 +29,13 @@ import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 /**
- * The OpenNLP Tokenizers segment an input character sequence into tokens.
+ * The OpenNLP Tokenizers segment an input character sequence into tokens. This one uses the OpenNLP class
+ * WhitespaceTokenizer.
  * <p>
  * Example:
  * <pre>
  * {@code
- * define TokenizeWhitespace datafu.pig.text.TokenizeWhitespace();
+ * define TokenizeWhitespace datafu.pig.text.opennlp.TokenizeWhitespace();
  *
  * -- input:
  * -- ("I believe the Masons have infiltrated the Apache PMC.")
@@ -49,10 +50,10 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 public class TokenizeWhitespace extends EvalFunc<DataBag>
 {
     private boolean isFirst = true;
-    InputStream is = null;
-    WhitespaceTokenizer tokenizer = WhitespaceTokenizer.INSTANCE;
-    TupleFactory tf = TupleFactory.getInstance();
-    BagFactory bf = BagFactory.getInstance();
+    private InputStream is = null;
+    private WhitespaceTokenizer tokenizer = WhitespaceTokenizer.INSTANCE;
+    private TupleFactory tf = TupleFactory.getInstance();
+    private BagFactory bf = BagFactory.getInstance();
 
     public DataBag exec(Tuple input) throws IOException
     {

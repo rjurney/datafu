@@ -18,10 +18,7 @@
  */
 package datafu.pig.text.opennlp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,24 +31,25 @@ import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 /**
- * The OpenNLP Tokenizers segment an input character sequence into tokens.
+ * The OpenNLP POSTag UDF tags bags of sequential words with parts of speech and confidence levels using the OpenNLP
+ * toolset, and specifically the TokenizeME class.
  * <p>
  * Example:
  * <pre>
  * {@code
- * define TokenizeME datafu.pig.text.TokenizeME();
- * define POSTag datafu.pig.text.POSTag();
+ * define TokenizeME datafu.pig.text.opennlp.TokenizeME();
+ * define POSTag datafu.pig.text.opennlp.POSTag();
  *
  * -- input:
- * -- ({(Appetizers),(during),(happy),(hour),(range),(from),($),(3-$),(8+),(.)})
+ * -- ({(Appetizers),(during),(happy),(hour),(range),(from),(low),(to),(high),(.)})
  * infoo = LOAD 'input' AS (text:chararray);
 
  * -- output:
  * -- Tuple schema is: (word, tag, confidence)
- * outfoo = FOREACH input GENERATE FLATTEN(TokenizeME(text)) AS tokens;
+ * outfoo = FOREACH input GENERATE TokenizeME(text) AS tokens;
  * -- ({(Appetizers,NNP,0.3619277937390988),(during,IN,0.7945543860326094),(happy,JJ,0.9888504792754391),
- * -- (hour,NN,0.9427455123502427),(range,NN,0.7335527963654751),(from,IN,0.9911576465589752),($,$,0.9652034031895174),
- * -- (3-$,CD,0.7005347487371849),(8+,CD,0.8227771746247106),(.,.,0.9900983495480891)})
+ * -- (hour,NN,0.9427455123502427),(range,NN,0.7335527963654751),(from,IN,0.9911576465589752),(low,JJ,0.9652034031895174),
+ * -- (to,IN,0.7005347487371849),(high,JJ,0.8227771746247106),(.,.,0.9900983495480891)})
  * outfoo2 = FOREACH outfoo GENERATE POSTag(tokens) AS tagged;
  * }
  * </pre>
@@ -59,13 +57,11 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 public class POSTag extends EvalFunc<DataBag>
 {
     private boolean isFirst = true;
-    InputStream modelIn = null;
-    POSModel model = null;
-    POSTaggerME tagger = null;
-    public static final String MODEL_FILE = "pos";
-    TupleFactory tf = TupleFactory.getInstance();
-    BagFactory bf = BagFactory.getInstance();
-    String modelPath;
+    private POSTaggerME tagger = null;
+    private static final String MODEL_FILE = "pos";
+    private TupleFactory tf = TupleFactory.getInstance();
+    private BagFactory bf = BagFactory.getInstance();
+    private String modelPath;
 
     public POSTag(String modelPath) {
         this.modelPath = modelPath;
@@ -78,7 +74,7 @@ public class POSTag extends EvalFunc<DataBag>
         return list;
     }
 
-    private String getFilename() throws IOException {
+    private String getFileName() throws IOException {
         // if the symlink exists, use it, if not, use the raw name if it exists
         // note: this is to help with testing, as it seems distributed cache doesn't work with PigUnit
         String loadFile = MODEL_FILE;
@@ -104,18 +100,14 @@ public class POSTag extends EvalFunc<DataBag>
         if(input.size() == 1) {
             inputBag = (DataBag)input.get(0);
         }
-        if(input.size() == 2) {
-            modelPath = input.get(1).toString();
-            inputBag = (DataBag)input.get(0);
-        }
 
         DataBag outBag = bf.newDefaultBag();
-        if(isFirst == true) {
-            modelIn = new FileInputStream(modelPath);
-            model = new POSModel(modelIn);
+        if(this.tagger == null) {
+            String loadFile = getFileName();
+            InputStream modelIn = new FileInputStream(loadFile);
+            InputStream buffer = new BufferedInputStream(modelIn);
+            POSModel model = new POSModel(buffer);
             this.tagger = new POSTaggerME(model);
-
-            isFirst = false;
         }
 
         // Form an inputString array thing for tagger to act on

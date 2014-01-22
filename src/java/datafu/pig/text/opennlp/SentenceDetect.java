@@ -18,9 +18,9 @@
  */
 package datafu.pig.text.opennlp;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
@@ -50,15 +50,35 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 public class SentenceDetect extends EvalFunc<DataBag>
 {
     private boolean isFirst = true;
-    InputStream is = null;
-    SentenceModel model = null;
-    SentenceDetectorME sdetector = null;
-    TupleFactory tf = TupleFactory.getInstance();
-    BagFactory bf = BagFactory.getInstance();
-    String modelPath = null;
+    private SentenceDetectorME sdetector = null;
+    private static final String MODEL_FILE = "sentences";
+    private TupleFactory tf = TupleFactory.getInstance();
+    private BagFactory bf = BagFactory.getInstance();
+    private String modelPath = null;
 
     public SentenceDetect(String modelPath) {
         this.modelPath = modelPath;
+    }
+
+    @Override
+    public List<String> getCacheFiles() {
+        List<String> list = new ArrayList<String>(1);
+        list.add(this.modelPath + "#" + MODEL_FILE);
+        return list;
+    }
+
+    private String getFileName() throws IOException {
+        // if the symlink exists, use it, if not, use the raw name if it exists
+        // note: this is to help with testing, as it seems distributed cache doesn't work with PigUnit
+        String loadFile = MODEL_FILE;
+        if (!new File(loadFile).exists()) {
+            if (new File(this.modelPath).exists()) {
+                loadFile = this.modelPath;
+            } else {
+                throw new IOException(String.format("Could not load model, neither symlink %s nor file %s exist", MODEL_FILE, this.modelPath));
+            }
+        }
+        return loadFile;
     }
 
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
@@ -78,12 +98,12 @@ public class SentenceDetect extends EvalFunc<DataBag>
         }
 
         DataBag outBag = bf.newDefaultBag();
-        if(isFirst == true) {
-            is = new FileInputStream(modelPath);
-            model = new SentenceModel(is);
-            sdetector = new SentenceDetectorME(model);
-
-            isFirst = false;
+        if(sdetector == null) {
+            String loadFile = getFileName();
+            InputStream is = new FileInputStream(modelPath);
+            InputStream buffer = new BufferedInputStream(is);
+            SentenceModel model = new SentenceModel(buffer);
+            SentenceDetectorME sdetector = new SentenceDetectorME(model);
         }
         String sentences[] = sdetector.sentDetect(inputString);
         for(String sentence : sentences) {
