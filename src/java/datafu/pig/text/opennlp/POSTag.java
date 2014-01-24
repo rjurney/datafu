@@ -61,38 +61,22 @@ public class POSTag extends EvalFunc<DataBag>
     private static final String MODEL_FILE = "pos";
     private TupleFactory tf = TupleFactory.getInstance();
     private BagFactory bf = BagFactory.getInstance();
-    private String modelPath;
+    private String modelPath = "data/en-pos-maxent.bin";
 
     public POSTag(String modelPath) {
         this.modelPath = modelPath;
     }
 
-    @Override
     public List<String> getCacheFiles() {
         List<String> list = new ArrayList<String>(1);
         list.add(this.modelPath + "#" + MODEL_FILE);
         return list;
     }
 
-    private String getFileName() throws IOException {
-        // if the symlink exists, use it, if not, use the raw name if it exists
-        // note: this is to help with testing, as it seems distributed cache doesn't work with PigUnit
-        String loadFile = MODEL_FILE;
-        if (!new File(loadFile).exists()) {
-            if (new File(this.modelPath).exists()) {
-                loadFile = this.modelPath;
-            } else {
-                throw new IOException(String.format("Could not load model, neither symlink %s nor file %s exist", MODEL_FILE, this.modelPath));
-            }
-        }
-        return loadFile;
-    }
-
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
     public DataBag exec(Tuple input) throws IOException
     {
         DataBag inputBag = null;
-        String modelPath = "data/en-pos-maxent.bin";
 
         if(input.size() == 0) {
             return null;
@@ -103,7 +87,7 @@ public class POSTag extends EvalFunc<DataBag>
 
         DataBag outBag = bf.newDefaultBag();
         if(this.tagger == null) {
-            String loadFile = getFileName();
+            String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);
             InputStream modelIn = new FileInputStream(loadFile);
             InputStream buffer = new BufferedInputStream(modelIn);
             POSModel model = new POSModel(buffer);

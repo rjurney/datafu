@@ -73,20 +73,6 @@ public class TokenizeME extends EvalFunc<DataBag>
         return list;
     }
 
-    private String getFileName() throws IOException {
-        // if the symlink exists, use it, if not, use the raw name if it exists
-        // note: this is to help with testing, as it seems distributed cache doesn't work with PigUnit
-        String loadFile = MODEL_FILE;
-        if (!new File(loadFile).exists()) {
-            if (new File(this.modelPath).exists()) {
-                loadFile = this.modelPath;
-            } else {
-                throw new IOException(String.format("Could not load model, neither symlink %s nor file %s exist", MODEL_FILE, this.modelPath));
-            }
-        }
-        return loadFile;
-    }
-
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
     public DataBag exec(Tuple input) throws IOException
     {
@@ -105,7 +91,7 @@ public class TokenizeME extends EvalFunc<DataBag>
 
         DataBag outBag = bf.newDefaultBag();
         if(this.tokenizer == null) {
-            String loadFile = getFileName();
+            String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);;
             InputStream file = new FileInputStream(loadFile);
             InputStream buffer = new BufferedInputStream(file);
             TokenizerModel model = new TokenizerModel(buffer);
