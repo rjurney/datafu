@@ -53,9 +53,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 public class TokenizeME extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
-    private InputStream is = null;
-    private TokenizerModel model = null;
     private TokenizerME tokenizer = null;
     private static final String MODEL_FILE = "tokens";
     private TupleFactory tf = TupleFactory.getInstance();

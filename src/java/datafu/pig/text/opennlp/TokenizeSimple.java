@@ -48,8 +48,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class TokenizeSimple extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
-    private InputStream is = null;
     private SimpleTokenizer tokenizer = SimpleTokenizer.INSTANCE;
     private TupleFactory tf = TupleFactory.getInstance();
     private BagFactory bf = BagFactory.getInstance();

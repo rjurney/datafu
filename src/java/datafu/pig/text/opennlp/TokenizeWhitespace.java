@@ -49,8 +49,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class TokenizeWhitespace extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
-    private InputStream is = null;
     private WhitespaceTokenizer tokenizer = WhitespaceTokenizer.INSTANCE;
     private TupleFactory tf = TupleFactory.getInstance();
     private BagFactory bf = BagFactory.getInstance();

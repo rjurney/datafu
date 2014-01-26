@@ -49,7 +49,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class SentenceDetect extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
     private SentenceDetectorME sdetector = null;
     private static final String MODEL_FILE = "sentences";
     private TupleFactory tf = TupleFactory.getInstance();

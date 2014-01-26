@@ -56,7 +56,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class POSTag extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
     private POSTaggerME tagger = null;
     private static final String MODEL_FILE = "pos";
     private TupleFactory tf = TupleFactory.getInstance();
