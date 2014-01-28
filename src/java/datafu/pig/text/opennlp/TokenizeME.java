@@ -73,19 +73,14 @@ public class TokenizeME extends EvalFunc<DataBag>
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
     public DataBag exec(Tuple input) throws IOException
     {
-        String inputString = null;
-
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputString = input.get(0).toString();
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        String inputString = input.get(0).toString();
         if(inputString == null || inputString == "") {
             return null;
         }
-
         DataBag outBag = bf.newDefaultBag();
         if(this.tokenizer == null) {
             String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);;

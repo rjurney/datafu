@@ -32,7 +32,7 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 /**
  * The OpenNLP POSTag UDF tags bags of sequential words with parts of speech and confidence levels using the OpenNLP
- * toolset, and specifically the TokenizeME class.
+ * toolset, and specifically the POSTaggerME class.
  * <p>
  * Example:
  * <pre>
@@ -41,16 +41,18 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  * define POSTag datafu.pig.text.opennlp.POSTag();
  *
  * -- input:
+ * -- (Appetizers during happy hour range from low to high.)
+ * input = LOAD 'input' AS (text:chararray);
+ * --
  * -- ({(Appetizers),(during),(happy),(hour),(range),(from),(low),(to),(high),(.)})
- * infoo = LOAD 'input' AS (text:chararray);
-
+ * tokenized = FOREACH input GENERATE TokenizeME(text) AS tokens;
+ * --
  * -- output:
  * -- Tuple schema is: (word, tag, confidence)
- * outfoo = FOREACH input GENERATE TokenizeME(text) AS tokens;
  * -- ({(Appetizers,NNP,0.3619277937390988),(during,IN,0.7945543860326094),(happy,JJ,0.9888504792754391),
  * -- (hour,NN,0.9427455123502427),(range,NN,0.7335527963654751),(from,IN,0.9911576465589752),(low,JJ,0.9652034031895174),
  * -- (to,IN,0.7005347487371849),(high,JJ,0.8227771746247106),(.,.,0.9900983495480891)})
- * outfoo2 = FOREACH outfoo GENERATE POSTag(tokens) AS tagged;
+ * output = FOREACH tokenized GENERATE POSTag(tokens) AS tagged;
  * }
  * </pre>
  */
@@ -60,12 +62,13 @@ public class POSTag extends EvalFunc<DataBag>
     private static final String MODEL_FILE = "pos";
     private TupleFactory tf = TupleFactory.getInstance();
     private BagFactory bf = BagFactory.getInstance();
-    private String modelPath = "data/en-pos-maxent.bin";
+    private String modelPath;
 
     public POSTag(String modelPath) {
         this.modelPath = modelPath;
     }
 
+    @Override
     public List<String> getCacheFiles() {
         List<String> list = new ArrayList<String>(1);
         list.add(this.modelPath + "#" + MODEL_FILE);
@@ -77,13 +80,11 @@ public class POSTag extends EvalFunc<DataBag>
     {
         DataBag inputBag = null;
 
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputBag = (DataBag)input.get(0);
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        inputBag = (DataBag)input.get(0);
         DataBag outBag = bf.newDefaultBag();
         if(this.tagger == null) {
             String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);
@@ -111,12 +112,10 @@ public class POSTag extends EvalFunc<DataBag>
         // Build output bag of 3-tuples
         for(int j = 0; j < tags.length; j++) {
             Tuple newTuple = tf.newTuple(3);
-            if(words.length > 0) {
-                newTuple.set(0, words[j]);
-                newTuple.set(1, tags[j]);
-                newTuple.set(2, probs[j]);
-                outBag.add(newTuple);
-            }
+            newTuple.set(0, words[j]);
+            newTuple.set(1, tags[j]);
+            newTuple.set(2, probs[j]);
+            outBag.add(newTuple);
         }
 
         return outBag;

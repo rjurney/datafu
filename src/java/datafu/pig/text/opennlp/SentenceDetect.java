@@ -69,28 +69,23 @@ public class SentenceDetect extends EvalFunc<DataBag>
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
     public DataBag exec(Tuple input) throws IOException
     {
-        String inputString = null;
-
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputString = input.get(0).toString();
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        String inputString = input.get(0).toString();
         if(inputString == null || inputString == "") {
             return null;
         }
-
         DataBag outBag = bf.newDefaultBag();
         if(sdetector == null) {
             String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);
             InputStream is = new FileInputStream(modelPath);
             InputStream buffer = new BufferedInputStream(is);
             SentenceModel model = new SentenceModel(buffer);
-            SentenceDetectorME sdetector = new SentenceDetectorME(model);
+            this.sdetector = new SentenceDetectorME(model);
         }
-        String sentences[] = sdetector.sentDetect(inputString);
+        String sentences[] = this.sdetector.sentDetect(inputString);
         for(String sentence : sentences) {
             Tuple outTuple = tf.newTuple(sentence);
             outBag.add(outTuple);

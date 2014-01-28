@@ -55,8 +55,6 @@ public class NLPTests extends PigTests
                 "This is a sentence. This is another sentence.",
                 "Yet another sentence. One more just for luck.");
 
-        test.runScript();
-
         assertOutput(test, "data2",
                 "({(This is a sentence.),(This is another sentence.)})",
                 "({(Yet another sentence.),(One more just for luck.)})");
@@ -88,8 +86,6 @@ public class NLPTests extends PigTests
         writeLinesToFile("input",
                 "This is a sentence. This is another sentence.",
                 "Yet another sentence. One more just for luck.");
-
-        test.runScript();
 
         assertOutput(test, "data2",
                 "({(This),(is),(a),(sentence),(.),(This),(is),(another),(sentence),(.)})",
@@ -123,8 +119,6 @@ public class NLPTests extends PigTests
                 "This is a sentence. This is another sentence.",
                 "Yet another sentence. One more just for luck.");
 
-        test.runScript();
-
         assertOutput(test, "data2",
                 "({(This),(is),(a),(sentence),(.),(This),(is),(another),(sentence),(.)})",
                 "({(Yet),(another),(sentence),(.),(One),(more),(just),(for),(luck),(.)})");
@@ -156,8 +150,6 @@ public class NLPTests extends PigTests
         writeLinesToFile("input",
                 "This is a sentence. This is another sentence.",
                 "Yet another sentence. One more just for luck.");
-
-        test.runScript();
 
         assertOutput(test, "data2",
                 "({(This),(is),(a),(sentence.),(This),(is),(another),(sentence.)})",
@@ -195,8 +187,6 @@ public class NLPTests extends PigTests
         writeLinesToFile("input",
                 "This is a sentence. This is another sentence.",
                 "Yet another sentence. One more just for luck.");
-
-        test.runScript();
 
         assertOutput(test, "data3",
                 "({(This,DT,0.9649410482478001),(is,VBZ,0.9982592902509803),(a,DT,0.9967282012835504),(sentence,NN,0.9772619256460584),(.,.,0.4391067883074289),(This,DT,0.8346710130761914),(is,VBZ,0.9928885242823617),(another,DT,0.9761159923140399),(sentence,NN,0.9964463493238542),(.,.,0.9856037689871404)})",

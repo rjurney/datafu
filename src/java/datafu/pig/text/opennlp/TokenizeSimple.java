@@ -54,15 +54,11 @@ public class TokenizeSimple extends EvalFunc<DataBag>
 
     public DataBag exec(Tuple input) throws IOException
     {
-        String inputString = null;
-
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputString = input.get(0).toString();
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        String inputString = input.get(0).toString();
         if(inputString == null || inputString == "") {
             return null;
         }
