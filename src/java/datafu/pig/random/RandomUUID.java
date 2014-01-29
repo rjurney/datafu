@@ -32,8 +32,6 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
 @Nondeterministic
 public class RandomUUID extends EvalFunc<String>
 {
-    private TupleFactory tf = TupleFactory.getInstance();
-
     public String exec(Tuple input) throws IOException
     {
         return UUID.randomUUID().toString();

@@ -19,13 +19,13 @@
 package datafu.test.pig.random;
 
 import datafu.test.pig.PigTests;
+import junit.framework.Assert;
 import org.adrianwalker.multilinestring.Multiline;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.pigunit.PigTest;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.testng.Assert.assertTrue;
 
@@ -62,14 +62,12 @@ public class UUIDTests extends PigTests
                 "input2",
                 "input3");
 
-        test.runScript();
-
-//        List<Tuple> tuples = getLinesForAlias(test, "data2", false);
-//        for (Tuple tuple : tuples)
-//        {
-//            String uuid = (String)tuple.get(1);
-//            assertTrue(uuid.length() > 1);
-//            assertTrue(uuid.length() < 100);
-//        }
+        List<Tuple> tuples = getLinesForAlias(test, "data2", true);
+        Set<UUID> set = new HashSet<UUID>();
+        for (Tuple tuple : tuples)
+        {
+            set.add(UUID.fromString((String)tuple.get(1)));
+        }
+        Assert.assertEquals(set.size(), 3);
     }
 }
