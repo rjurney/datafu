@@ -36,7 +36,7 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  * Example:
  * <pre>
  * {@code
- * define TokenizeME datafu.pig.text.opennlp.TokenizeME();
+ * define TokenizeME datafu.pig.text.opennlp.TokenizeME('data/en-token.bin');
  *
  * -- input:
  * -- ("I believe the Masons have infiltrated the Apache PMC.")

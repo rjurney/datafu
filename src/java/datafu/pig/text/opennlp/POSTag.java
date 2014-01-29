@@ -37,8 +37,8 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  * Example:
  * <pre>
  * {@code
- * define TokenizeME datafu.pig.text.opennlp.TokenizeME();
- * define POSTag datafu.pig.text.opennlp.POSTag();
+ * define TokenizeME datafu.pig.text.opennlp.TokenizeME('data/en-token.bin');
+ * define POSTag datafu.pig.text.opennlp.POSTag('data/en-pos-maxent.bin');
  *
  * -- input:
  * -- (Appetizers during happy hour range from low to high.)

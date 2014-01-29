@@ -35,7 +35,7 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  * Example:
  * <pre>
  * {@code
- * define SentenceDetect datafu.pig.text.SentenceDetect();
+ * define SentenceDetect datafu.pig.text.SentenceDetect('data/en-sent.bin');
  *
  * -- input:
  * -- ("I believe the Masons have infiltrated the Apache PMC. I believe laser beams control cat brains.")
