@@ -29,12 +29,12 @@ import org.apache.pig.impl.logicalLayer.FrontendException;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
 /**
- * The OpenNLP Tokenizers segment an input character sequence into tokens.
+ * The OpenNLP Tokenizers segment an input character sequence into tokens. This one uses the OpenNLP class SimpleTokenizer
  * <p>
  * Example:
  * <pre>
  * {@code
- * define TokenizeSimple datafu.pig.text.TokenizeSimple();
+ * define TokenizeSimple datafu.pig.text.opennlp.TokenizeSimple();
  *
  * -- input:
  * -- ("I believe the Masons have infiltrated the Apache PMC.")
@@ -48,23 +48,17 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class TokenizeSimple extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
-    InputStream is = null;
-    SimpleTokenizer tokenizer = SimpleTokenizer.INSTANCE;
-    TupleFactory tf = TupleFactory.getInstance();
-    BagFactory bf = BagFactory.getInstance();
+    private SimpleTokenizer tokenizer = SimpleTokenizer.INSTANCE;
+    private TupleFactory tf = TupleFactory.getInstance();
+    private BagFactory bf = BagFactory.getInstance();
 
     public DataBag exec(Tuple input) throws IOException
     {
-        String inputString = null;
-
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputString = input.get(0).toString();
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        String inputString = input.get(0).toString();
         if(inputString == null || inputString == "") {
             return null;
         }

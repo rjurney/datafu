@@ -18,9 +18,9 @@
  */
 package datafu.pig.text.opennlp;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
@@ -35,7 +35,7 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  * Example:
  * <pre>
  * {@code
- * define SentenceDetect datafu.pig.text.SentenceDetect();
+ * define SentenceDetect datafu.pig.text.SentenceDetect('data/en-sent.bin');
  *
  * -- input:
  * -- ("I believe the Masons have infiltrated the Apache PMC. I believe laser beams control cat brains.")
@@ -49,43 +49,43 @@ import org.apache.pig.impl.logicalLayer.schema.Schema;
  */
 public class SentenceDetect extends EvalFunc<DataBag>
 {
-    private boolean isFirst = true;
-    InputStream is = null;
-    SentenceModel model = null;
-    SentenceDetectorME sdetector = null;
-    TupleFactory tf = TupleFactory.getInstance();
-    BagFactory bf = BagFactory.getInstance();
-    String modelPath = null;
+    private SentenceDetectorME sdetector = null;
+    private static final String MODEL_FILE = "sentences";
+    private TupleFactory tf = TupleFactory.getInstance();
+    private BagFactory bf = BagFactory.getInstance();
+    private String modelPath = null;
 
     public SentenceDetect(String modelPath) {
         this.modelPath = modelPath;
     }
 
+    @Override
+    public List<String> getCacheFiles() {
+        List<String> list = new ArrayList<String>(1);
+        list.add(this.modelPath + "#" + MODEL_FILE);
+        return list;
+    }
+
     // Enable multiple languages by specifying the model path. See http://text.sourceforge.net/models-1.5/
     public DataBag exec(Tuple input) throws IOException
     {
-        String inputString = null;
-
-        if(input.size() == 0) {
-            return null;
-        }
-        if(input.size() == 1) {
-            inputString = input.get(0).toString();
+        if(input.size() != 1) {
+            throw new IOException();
         }
 
+        String inputString = input.get(0).toString();
         if(inputString == null || inputString == "") {
             return null;
         }
-
         DataBag outBag = bf.newDefaultBag();
-        if(isFirst == true) {
-            is = new FileInputStream(modelPath);
-            model = new SentenceModel(is);
-            sdetector = new SentenceDetectorME(model);
-
-            isFirst = false;
+        if(sdetector == null) {
+            String loadFile = CachedFile.getFileName(MODEL_FILE, this.modelPath);
+            InputStream is = new FileInputStream(modelPath);
+            InputStream buffer = new BufferedInputStream(is);
+            SentenceModel model = new SentenceModel(buffer);
+            this.sdetector = new SentenceDetectorME(model);
         }
-        String sentences[] = sdetector.sentDetect(inputString);
+        String sentences[] = this.sdetector.sentDetect(inputString);
         for(String sentence : sentences) {
             Tuple outTuple = tf.newTuple(sentence);
             outBag.add(outTuple);
