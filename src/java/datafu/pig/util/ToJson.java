@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package datafu.pig.util;
 
 import org.apache.commons.logging.Log;
@@ -19,17 +37,33 @@ import java.io.IOException;
 //import java.math.BigInteger;
 import java.util.Map;
 
+/**
+ * The ToJson UDF converts a pig variable to a JSON string representation.
+ * <p>
+ * Example:
+ * <pre>
+ * {@code
+ * define ToJson datafu.pig.util.ToJson();
+ *
+ * -- input: {(foo, 12),(bar, 13),(xenu, 14)}
+ * --
+ * input1 = LOAD 'input' AS (B:bag{T:tuple(text:chararray, number:int)});
+ *
+ * -- output:(json:chararray);
+ * --
+ * -- ({"B":[{"text":"foo","number":12},{"text":"bar","number":13},{"text":"xenu","number":14}]})
+ * outfoo = FOREACH input1 GENERATE ToJson(B) as json;
+ * }
+ * </pre>
+ */
 @OutputSchema("json:chararray")
 public class ToJson extends EvalFunc<String> {
 
-    private static final Log LOG = LogFactory.getLog(ToJson.class);
     private static final int BUF_SIZE = 4 * 1024;
 
     public String exec(Tuple input) throws IOException {
         if (input == null || input.size() == 0)
             return null;
-
-        ResourceSchema r = new ResourceSchema();
 
         Schema inputSchema = getInputSchema();
         if(inputSchema == null) {
