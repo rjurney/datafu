@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package datafu.pig.util;
+package datafu.pig.transform;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -147,14 +147,16 @@ public class ToJson extends EvalFunc<String> {
 //                    json.writeNumberField(field.getName(), (BigDecimal)d);
 //                    return;
 
-                case DataType.MAP:
-                    json.writeFieldName(field.getName());
-                    json.writeStartObject();
-                    for (Map.Entry<String, Object> e : ((Map<String, Object>)d).entrySet()) {
-                        json.writeStringField(e.getKey(), e.getValue() == null ? null : e.getValue().toString());
-                    }
-                    json.writeEndObject();
-                    return;
+//                case DataType.MAP:
+//                    json.writeFieldName(field.getName());
+//                    ResourceSchema s = field.getSchema();
+//                    ResourceSchema.ResourceFieldSchema[] fs = s.getFields();
+//                    json.writeStartObject();
+//                    for (Map.Entry<String, Object> e : ((Map<String, Object>)d).entrySet()) {
+//                        json.writeField(e.getKey(), fs e.getValue());
+//                    }
+//                    json.writeEndObject();
+//                    return;
 
                 case DataType.TUPLE:
                     json.writeFieldName(field.getName());

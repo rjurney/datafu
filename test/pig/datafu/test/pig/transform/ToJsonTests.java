@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package datafu.test.pig.util;
+package datafu.test.pig.transform;
 
 import org.adrianwalker.multilinestring.Multiline;
 import org.apache.pig.pigunit.PigTest;
@@ -69,12 +69,14 @@ public class ToJsonTests extends PigTests
         PigTest test = createPigTestFromString(toJsonTestBag);
 
         writeLinesToFile("input",
-                "{(foo, 12), (bar, 13), (xenu, 14)}");
+                "{(foo, 12), (bar, 13), (xenu, 14)}",
+                "{(,),(bar,),(,14)}");
 
         test.runScript();
 
         assertOutput(test, "data2",
-                "({\"B\":[{\"text\":\"foo\",\"number\":12},{\"text\":\"bar\",\"number\":13},{\"text\":\"xenu\",\"number\":14}]})");
+                "({\"B\":[{\"text\":\"foo\",\"number\":12},{\"text\":\"bar\",\"number\":13},{\"text\":\"xenu\",\"number\":14}]})",
+                "({\"B\":[{\"text\":\"\",\"number\":null},{\"text\":\"bar\",\"number\":null},{\"text\":\"\",\"number\":14}]})");
     }
 
     /**
